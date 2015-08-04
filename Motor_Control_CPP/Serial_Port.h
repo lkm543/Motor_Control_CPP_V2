@@ -78,7 +78,7 @@ void SerialPort::Close_SerialPort(){
 }
 
 bool SerialPort::Write_into_SerialPort(Packet AHRSPacket){
-	LPDWORD byteswritten = 6 + (LPDWORD)AHRSPacket.DataLength;
+	LPDWORD byteswritten = (LPDWORD) 6 + (LPDWORD)AHRSPacket.DataLength;
 	int length = 0;
 	uint8_t* packet = new uint8_t[6 + AHRSPacket.DataLength];
 	packet[0] = (uint8_t)'E';
@@ -95,7 +95,8 @@ bool SerialPort::Write_into_SerialPort(Packet AHRSPacket){
 	}
 	packet[6 + i] = AHRSPacket.CRC8;
 
-	return WriteFile(hSerial, packet, 1, byteswritten, NULL);
+	return WriteFile(hSerial, packet, (DWORD)byteswritten, (LPDWORD)0, NULL);
+	//return true;
 }
 
 #endif
