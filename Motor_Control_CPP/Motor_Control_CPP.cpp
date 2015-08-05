@@ -9,7 +9,9 @@
 using namespace std;
 void data_receive();
 SerialPort *serial = new SerialPort();
+//View *view = new View();
 Packet packet;
+Data *data = new Data();
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -25,7 +27,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	serial->Write_into_SerialPort(packet);
 	thread mThread(data_receive);
 	while (true){
-
+		//view->refresh(data);
 	}
 	
 	

@@ -1,16 +1,20 @@
-﻿已經開始建置於 2015/8/5 上午 07:16:43。
-     1>節點 2 (Build 目標) 上的專案 "E:\Dropbox\LKM\Desktop\實驗室\Massage\Code\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj"。
+﻿已經開始建置於 2015/8/5 下午 03:45:19。
+     1>節點 2 (Rebuild 目標) 上的專案 "C:\Users\massage\Desktop\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj"。
      1>ClCompile:
-         C:\Program Files (x86)\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Motor_Control_CPP.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Motor_Control_CPP.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\Motor_Control_CPP.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Motor_Control_CPP.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Motor_Control_CPP.cpp
          Motor_Control_CPP.cpp
-     1>e:\dropbox\lkm\desktop\實驗室\massage\code\motor_control_cpp\motor_control_cpp\serial_port.h(105): warning C4800: 'BOOL' : 強制將 bool 的值定為 'true' 或 'false' (效能警告)
-     1>e:\dropbox\lkm\desktop\實驗室\massage\code\motor_control_cpp\motor_control_cpp\serial_port.h(133): warning C4018: '<' : signed/unsigned 不相符
-       Link:
-         C:\Program Files (x86)\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Dropbox\LKM\Desktop\實驗室\Massage\Code\Motor_Control_CPP\Debug\Motor_Control_CPP.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Dropbox\LKM\Desktop\實驗室\Massage\Code\Motor_Control_CPP\Debug\Motor_Control_CPP.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Dropbox\LKM\Desktop\實驗室\Massage\Code\Motor_Control_CPP\Debug\Motor_Control_CPP.lib" /MACHINE:X86 Debug\Motor_Control_CPP.obj
-         Debug\stdafx.obj
-         Motor_Control_CPP.vcxproj -> E:\Dropbox\LKM\Desktop\實驗室\Massage\Code\Motor_Control_CPP\Debug\Motor_Control_CPP.exe
-     1>專案 "E:\Dropbox\LKM\Desktop\實驗室\Massage\Code\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj" (Build 目標) 建置完成。
+     1>c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\data.h(9): warning C4091: 'static ' : 當沒有宣告變數時，忽略 'Data' 的左方
+     1>c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\data.h(5): error C2011: 'Data' : 'class' 類型重複定義
+                 c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\data.h(5) : 請參閱 'Data' 的宣告
+     1>c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\ahrs.h(25): error C2027: 使用未定義類型 'Data'
+                 c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\data.h(5) : 請參閱 'Data' 的宣告
+     1>c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\ahrs.h(25): error C2227: '->Controller_Status' 的左邊必須指向類別/結構/等位/泛型類型
+     1>c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\serial_port.h(104): warning C4800: 'BOOL' : 強制將 bool 的值定為 'true' 或 'false' (效能警告)
+     1>c:\users\massage\desktop\motor_control_cpp\motor_control_cpp\serial_port.h(133): warning C4018: '<' : signed/unsigned 不相符
+     1>專案 "C:\Users\massage\Desktop\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj" (Rebuild 目標) 建置完成 -- 失敗。
 
-建置成功。
+建置失敗。
 
-經過時間 00:00:00.82
+經過時間 00:00:00.88

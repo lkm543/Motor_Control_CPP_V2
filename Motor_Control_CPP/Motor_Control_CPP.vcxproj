@@ -80,6 +80,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AHRS.h" />
+    <ClInclude Include="CRC.h" />
+    <ClInclude Include="Data.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="Serial_Port.h" />
     <ClInclude Include="stdafx.h" />
