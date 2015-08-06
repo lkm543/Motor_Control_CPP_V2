@@ -1,6 +1,7 @@
+#ifndef Packet_H
+#define Packet_H
+
 #include <cstdint>
-#ifndef HEADER_Serial_Port
-#define HEADER_Serial_Port
 
 class Packet
 {

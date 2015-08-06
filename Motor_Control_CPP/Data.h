@@ -1,13 +1,17 @@
+#ifndef HEADER_Data
+#define HEADER_Data
+
 #include <cstdint>
 
 #include <windows.h>
 static class Data
 {
 public:
-	int* Controller_Status[7][22];
-	int* PID_Status[7][48];
+	int* Controller_Status[7][11];
+	int* PID_Status[7][12];
 };
 
+#endif
 /*
 *********Controller_Status*********
 Count	1
