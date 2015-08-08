@@ -3,6 +3,10 @@
 #include "stdafx.h"
 #include "AHRS.h"
 #include "CRC.h"
+#include "time.h"
+
+int AHRS::number_bytes_perframe = 0;
+double AHRS::time_per_frame = 0;
 
 enum AHRS::PName
 {
@@ -108,7 +112,12 @@ AHRS::AHRS()
 	serial->serial_port_name = "\\\\.\\COM4";
 	serial->BaudRate = 4900000;
 	serial->Open_SerialPort();
+	serial->SetParam_SerialPort();
+	serial->SetTimeout_SerialPort();
+	view = new View();
+	view->count = 0;
 	// Fill arrays used for AHRS COM
+	AHRS::data = new Data();
 	const int packet_count = AHRS::NumberOfPnames;
 	byte Command[packet_count];
 
@@ -166,7 +175,7 @@ AHRS::AHRS()
 
 //讀出封包
 void AHRS::read_packet(){
-
+	bool read = false;
 	int continue_parsing = 1;
 	//int bytes_to_read;
 	bool found_packet;
@@ -175,16 +184,25 @@ void AHRS::read_packet(){
 	DWORD   dwErrors;
 	COMSTAT comStat;
 	//AHRS *AHRS_Class = new AHRS();
-
 	//取得Receive但尚未Read的數目(comStat.cbInQue)
 	ClearCommError(serial->hSerial, &dwErrors, &comStat);
 	//std::cout << dwErrors << ":::" << comStat.cbInQue << std::endl;
-
-
-	if (ReadFile(serial->hSerial, serial->szBuff, comStat.cbInQue, (LPDWORD)serial->Read_Ptr, NULL)){
+	DWORD Read_Ptr_temp;
+	clock_t start, finish;
+	int number = comStat.cbInQue;
+	//封包太少 睡一下讓多一點進來
+	if (number<150){
+		Sleep(10);
+		ClearCommError(serial->hSerial, &dwErrors, &comStat);
+		number = comStat.cbInQue;
+	}
+	start = clock();
+	if (comStat.cbInQue > 40000)
+		comStat.cbInQue = 40000;
+	if (comStat.cbInQue != 0){
 		//std::cout << szBuff << std::endl;
 		//std::cout << dwErrors << ":::" << comStat.cbInQue << std::endl;
-
+		read = ReadFile(serial->hSerial, serial->szBuff, comStat.cbInQue, &Read_Ptr_temp , NULL);
 
 		while (continue_parsing == 1)//RXbufPtr >= 8 &&
 		{
@@ -193,6 +211,8 @@ void AHRS::read_packet(){
 			packet_start_index = 0;
 			for (packet_index = 0; packet_index < comStat.cbInQue; packet_index++)
 			{
+
+
 				if (serial->szBuff[packet_index] == 'E' && serial->szBuff[packet_index + 1] == 'C' && serial->szBuff[packet_index + 2] == 'S')
 				{
 					found_packet = true;
@@ -238,18 +258,19 @@ void AHRS::read_packet(){
 								DataPacket->Data[i] = serial->szBuff[packet_start_index + 6 + i];
 							}
 							DataPacket->CRC8 = serial->szBuff[packet_start_index + 6 + i];
+							number_bytes_perframe = number/29;
 							handle_packet(DataPacket);
-
+							//continue_parsing = 0;
 						}
 
 						// Copy all received bytes that weren't part of this packet into the beginning of the
 						// buffer.  Then, reset RXbufPtr.
-
 						for (int index = 0; index < (buffer_length - packet_length); index++)
 						{
 							serial->szBuff[index] = serial->szBuff[(packet_start_index + packet_length) + index];
 						}
 						comStat.cbInQue = (buffer_length - packet_length);
+						//continue_parsing = 0;
 					}
 					else
 					{
@@ -274,14 +295,39 @@ void AHRS::read_packet(){
 		//std::cout << sizeof(szBuff) << std::endl;
 		//error occurred. Report to user.
 	}
+	finish = clock();
+	double duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	time_per_frame += duration;
+	//if (number != 0)
+	//	cout <<"Number of data to Read:"<< number/29<<"  Time consuming:"<<(double) duration << "s"<<endl;
 };
-
+int bytesToInt(byte* bytes, int size = 4)
+{
+	int addr = bytes[0] & 0xFF;
+	addr |= ((bytes[1] << 8) & 0xFF00);
+	addr |= ((bytes[2] << 16) & 0xFF0000);
+	addr |= ((bytes[3] << 24) & 0xFF000000);
+	return addr;
+}
+short bytesToShort(byte* bytes, int size = 2)
+{
+	short addr = bytes[0] & 0xFF;
+	addr |= ((bytes[1] << 8) & 0xFF00);
+	return addr;
+}
+unsigned char bytesTounsignedchar(byte* bytes, int size = 1)
+{
+	unsigned char addr = bytes[0] & 0xFF;
+	return addr;
+}
 //解讀封包
 void AHRS::handle_packet(Packet *packet){
 	uint8_t channel = packet->Ch_Status;
 	uint8_t command = packet->PacketType;
 	uint8_t datalength = packet->DataLength;
 	uint8_t CRC = packet->CRC8;
+	//uint8_t Data2[22];
+	//Data2 = packet->Data;
 	// to do: check crc8
 	if (CRC = Check_CRC8(*packet) && command == 0x0f){
 
@@ -300,71 +346,75 @@ void AHRS::handle_packet(Packet *packet){
 		*/
 		int *x = 0;
 		short *y = 0;
-		unsigned short *z = 0;
+		unsigned char *z = 0;
 		unsigned char a[4];
 		unsigned char b[2];
+		unsigned char c[1];
 
 		//Count
-		a[0] = packet->Data[0];
-		*z = *(unsigned short *)a[0];
-		data->Controller_Status[channel][0] = (int*) z;
+		c[0] = packet->Data[0];
+		//*z = a[0];
+		//data->Controller_Status[channel][0] = (int*) z;
+		data->Controller_Status[channel][0] = (int*)bytesTounsignedchar(c,1);
 
 		//Position Target
 		a[3] = packet->Data[1];
 		a[2] = packet->Data[2];
 		a[1] = packet->Data[3];
 		a[0] = packet->Data[4];
-		*x = *(int *)a;
-		data->Controller_Status[channel][1] = x;
+		//*x = *(int *)a;
+		data->Controller_Status[channel][1] = (int*) bytesToInt(a, 4);
 
 		//Motor position
 		a[3] = packet->Data[5];
 		a[2] = packet->Data[6];
 		a[1] = packet->Data[7];
 		a[0] = packet->Data[8];
-		*x = *(int *)a;
-		data->Controller_Status[channel][2] = x;
+		//*x = *(int *)a;
+		data->Controller_Status[channel][2] = (int*) bytesToInt(a, 4);
 
 		//Velocity External
 		b[1] = packet->Data[9];
 		b[0] = packet->Data[10];
-		*y = *(short *)b;
-		data->Controller_Status[channel][3] = (int*) y;
+		//*y = *(short *)b;
+		data->Controller_Status[channel][3] = (int*) bytesToShort(b,4);
 
 		//Velocity internal
 		b[1] = packet->Data[11];
 		b[0] = packet->Data[12];
-		*y = *(short *)b;
-		data->Controller_Status[channel][4] = (int*) y;
+		//*y = *(short *)b;
+		data->Controller_Status[channel][4] = (int*)bytesToShort(b, 4);
 
 		//Motor velocity
 		b[1] = packet->Data[13];
 		b[0] = packet->Data[14];
-		*y = *(short *)b;
-		data->Controller_Status[channel][5] = (int*) y;
+		//*y = *(short *)b;
+		data->Controller_Status[channel][5] = (int*)bytesToShort(b, 4);
 		
 		//torque external
 		b[1] = packet->Data[15];
 		b[0] = packet->Data[16];
-		*y = *(short *)b;
-		data->Controller_Status[channel][6] = (int*) y;
+		//*y = *(short *)b;
+		data->Controller_Status[channel][6] = (int*)bytesToShort(b, 4);
 
 		//torque internal
 		b[1] = packet->Data[17];
 		b[0] = packet->Data[18];
-		*y = *(short *)b;
-		data->Controller_Status[channel][7] = (int*) y;
+		//*y = *(short *)b;
+		data->Controller_Status[channel][7] = (int*)bytesToShort(b, 4);
 
 		//Mortor torque
 		b[1] = packet->Data[19];
 		b[0] = packet->Data[20];
-		*y = *(short *)b;
-		data->Controller_Status[channel][8] = (int*) y;
+		//*y = *(short *)b;
+		data->Controller_Status[channel][8] = (int*)bytesToShort(b, 4);
 
 		//dutycycle
-		a[0] = packet->Data[21];
-		*z = *(unsigned short *)a[0];
-		data->Controller_Status[channel][9] = (int*) z;
+		//a[0] = packet->Data[21];
+		//*z = *(unsigned short *)a[0];
+		//data->Controller_Status[channel][9] = (int*) bytesToShort;
+		c[0] = packet->Data[21];
+		data->Controller_Status[channel][9] = (int*)bytesTounsignedchar(c, 1);
 
 		view->refresh(data);
 	}
@@ -388,29 +438,42 @@ void AHRS::handle_packet(Packet *packet){
 void AHRS::kick_off(){
 	Packet *packet = new Packet();
 	for (int i = 0; i < 7; i++){
+		cout << "Start to kick off Motor" << i + 1 << endl;
 		//reset
 		packet->Ch_Status = i;
 		packet->PacketType = 0x10;
 		packet->DataLength = 1;
+		packet->CRC8 = Check_CRC8(*packet);
 		serial->Write_into_SerialPort(*packet);
 		Sleep(100);
+		//read_packet();
 
 		//set period
 		packet->Ch_Status = i;
-		packet->PacketType = 0x11;
-		packet->DataLength = 1;
-		serial->Write_into_SerialPort(*packet);
-		Sleep(100);
-
-		//kick-off
-		packet->Ch_Status = i;
 		packet->PacketType = 0x43;
 		packet->DataLength = 2;
-		packet->Data[0] = 30;
+		packet->Data[0] = 15;
+		packet->CRC8 = Check_CRC8(*packet);
 		serial->Write_into_SerialPort(*packet);
 		Sleep(100);
+		//read_packet();
+		//serial->flush();
+
 	}
-	serial->flush();
+
+	for (int i = 0; i < 7; i++){
+		//kick-off
+		packet->Ch_Status = i;
+		packet->PacketType = 0x11;
+		packet->DataLength = 1;
+		packet->CRC8 = Check_CRC8(*packet);
+		serial->Write_into_SerialPort(*packet);
+		Sleep(100);
+		serial->flush();
+	}
+	cout << "Start to Flush Data in Buffer" << endl;
+	//serial->flush();
+	cout << "Start to Read data" << endl;
 }
 
 

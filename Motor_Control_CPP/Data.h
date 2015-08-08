@@ -4,7 +4,7 @@
 #include <cstdint>
 
 #include <windows.h>
-static class Data
+class Data
 {
 public:
 	int* Controller_Status[7][11];

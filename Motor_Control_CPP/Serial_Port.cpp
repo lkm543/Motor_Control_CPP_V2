@@ -18,7 +18,7 @@ void SerialPort::Open_SerialPort(){
 			//serial port does not exist. Inform user.
 		}
 		else{
-			std::cout << "Serial Port Failed!" << std::endl;
+			std::cout << "Open Serial Port Failed!" << std::endl;
 		}
 	}
 };
@@ -27,24 +27,26 @@ void SerialPort::SetParam_SerialPort(){
 	dcbSerialParams = { 0 };
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 	if (!GetCommState(hSerial, &dcbSerialParams)) {
-		//error getting state
+		std::cout << "error getting state" << std::endl;
 	}
 	dcbSerialParams.BaudRate = BaudRate;
 	dcbSerialParams.ByteSize = 8;
 	dcbSerialParams.StopBits = ONESTOPBIT;
 	dcbSerialParams.Parity = NOPARITY;
 	if (!SetCommState(hSerial, &dcbSerialParams)){
-		//error setting serial port state
+		std::cout << "error setting state" << std::endl;
 	}
 };
 
 void SerialPort::SetTimeout_SerialPort(){
 	timeouts = { 0 };
+	/*
 	timeouts.ReadIntervalTimeout = 50;
 	timeouts.ReadTotalTimeoutConstant = 50;
 	timeouts.ReadTotalTimeoutMultiplier = 10;
 	timeouts.WriteTotalTimeoutConstant = 50;
 	timeouts.WriteTotalTimeoutMultiplier = 10;
+	*/
 	if (!SetCommTimeouts(hSerial, &timeouts)){
 		std::cout << "Set params of Timeouts Failed" << std::endl;
 		//error occureed. Inform user
@@ -68,9 +70,11 @@ bool SerialPort::Write_into_SerialPort(Packet AHRSPacket){
 	packet[5] = AHRSPacket.DataLength;
 	// Fill data section
 	int i = 0;
-	for (i = 0; i < (AHRSPacket.DataLength - 1); i++)
-	{
-		packet[6 + i] = AHRSPacket.Data[i];
+	if (AHRSPacket.DataLength > 1){
+		for (i = 0; i < (AHRSPacket.DataLength - 1); i++)
+		{
+			packet[6 + i] = AHRSPacket.Data[i];
+		}
 	}
 	packet[6 + i] = AHRSPacket.CRC8;
 
@@ -78,12 +82,15 @@ bool SerialPort::Write_into_SerialPort(Packet AHRSPacket){
 }
 
 void SerialPort::flush(){
-	bool continuous = true;
 	DWORD   dwErrors;
 	COMSTAT *comStat = new COMSTAT();
-	while (continuous && comStat->cbInQue==0)
+	ClearCommError(hSerial, &dwErrors, comStat);
+	DWORD Read_Ptr_temp;
+	while (comStat->cbInQue!=0)
 	{
 		ClearCommError(hSerial, &dwErrors, comStat);
-		continuous = ReadFile(hSerial, szBuff, comStat->cbInQue, (LPDWORD)Read_Ptr, NULL);
+		if (comStat->cbInQue == 0)
+			break;
+		ReadFile(hSerial, szBuff, comStat->cbInQue, &Read_Ptr_temp, NULL);
 	};
 };

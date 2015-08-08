@@ -11,6 +11,8 @@
 //TO DO  timeout handler
 class AHRS{
 public:
+	static int number_bytes_perframe;
+	static double time_per_frame;
 	AHRS();
 	void kick_off();
 	void read_packet();
@@ -21,7 +23,6 @@ public:
 	struct PID_PARAM;
 	struct MOTOR_MEMBER;
 	struct MOTOR_PID_MEMBER;
-	// Variables for storing the state of the Motor controller
 	static const int Motor_Device_SIZE = 7;
 	int getTypeIndex(byte type, int Command[]);
 	Data *data;

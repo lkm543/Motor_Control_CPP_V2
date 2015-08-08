@@ -12,6 +12,7 @@ AHRS *ahrs;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	ahrs = new AHRS();
+	//thread mThread(data_receive);
 	ahrs->kick_off();
 	/*
 	packet.PacketType = 0x12;
@@ -22,14 +23,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	serial->Write_into_SerialPort(packet);
 	*/
 	
-	thread mThread(data_receive);
 	while (true){
-		//view->refresh(data);
+		ahrs->read_packet();
 	}
-	
-	std::terminate();
-	cout << "任意鍵結束" << endl;
+	//cout << "任意鍵結束" << endl;
 	system("pause");
+	std::terminate();
 	return 0;
 }
 

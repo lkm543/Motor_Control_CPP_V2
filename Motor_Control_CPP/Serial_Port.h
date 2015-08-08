@@ -12,9 +12,9 @@ class Packet;
 class SerialPort{
 
 public:
-	static const int Size_Buffer = 30000;
+	static const int Size_Buffer = 10000;
 	char szBuff[Size_Buffer];//Size_Buffer
-	int MAX_PACKET_SIZE = 100;
+	int MAX_PACKET_SIZE = 50;
 	std::string serial_port_name;
 	DWORD BaudRate;
 	DWORD Read_Ptr=0;
