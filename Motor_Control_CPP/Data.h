@@ -8,7 +8,7 @@ class Data
 {
 public:
 	int* Controller_Status[7][11];
-	int* PID_Status[7][12];
+	float PID_Status[7][12];
 };
 
 #endif

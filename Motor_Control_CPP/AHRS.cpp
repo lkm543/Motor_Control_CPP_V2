@@ -4,10 +4,12 @@
 #include "AHRS.h"
 #include "CRC.h"
 #include "time.h"
-
+#include <fstream>
+#include <sstream>
 int AHRS::number_bytes_perframe = 0;
 double AHRS::time_per_frame = 0;
-
+int AHRS::data_per_frames=0;
+/*
 enum AHRS::PName
 {
 	WHO_AM_I = 0,
@@ -103,13 +105,13 @@ struct AHRS::MOTOR_PID_MEMBER
 		PID_PARAM Vel;  // velocity
 		PID_PARAM Tor;  // torque
 };
-
+*/
 // Default constructor
 AHRS::AHRS()
 {
 	//connected = false;
 	serial = new SerialPort();
-	serial->serial_port_name = "\\\\.\\COM4";
+	serial->serial_port_name = "\\\\.\\COM5";
 	serial->BaudRate = 4900000;
 	serial->Open_SerialPort();
 	serial->SetParam_SerialPort();
@@ -118,12 +120,13 @@ AHRS::AHRS()
 	view->count = 0;
 	// Fill arrays used for AHRS COM
 	AHRS::data = new Data();
-	const int packet_count = AHRS::NumberOfPnames;
+	const int packet_count = 28;
 	byte Command[packet_count];
 
 	//serialPort = new SerialPort();
 
 	// Commands that can be sent to the AHRS device
+	/*
 	Command[AHRS::WHO_AM_I] = 0x00;
 	Command[AHRS::FIRMWARE_VERSION] = 0x01;
 	Command[AHRS::ID_STATUS] = 0x03;
@@ -156,7 +159,7 @@ AHRS::AHRS()
 	Command[AHRS::VELOCITY_EXT_CMD] = 0x41;
 	Command[AHRS::TORQUE_EXT_CMD] = 0x42;
 	Command[AHRS::DEBUG_MODE] = 0xFF;
-
+	*/
 	//RXbuffer = new byte[RX_BUF_SIZE];
 	/*
 	m_Motor_Member = new MOTOR_MEMBER[Motor_Device_SIZE];
@@ -183,10 +186,8 @@ void AHRS::read_packet(){
 	int packet_index;
 	DWORD   dwErrors;
 	COMSTAT comStat;
-	//AHRS *AHRS_Class = new AHRS();
 	//取得Receive但尚未Read的數目(comStat.cbInQue)
 	ClearCommError(serial->hSerial, &dwErrors, &comStat);
-	//std::cout << dwErrors << ":::" << comStat.cbInQue << std::endl;
 	DWORD Read_Ptr_temp;
 	clock_t start, finish;
 	int number = comStat.cbInQue;
@@ -196,6 +197,7 @@ void AHRS::read_packet(){
 		ClearCommError(serial->hSerial, &dwErrors, &comStat);
 		number = comStat.cbInQue;
 	}
+	data_per_frames += number;
 	start = clock();
 	if (comStat.cbInQue > 40000)
 		comStat.cbInQue = 40000;
@@ -326,9 +328,6 @@ void AHRS::handle_packet(Packet *packet){
 	uint8_t command = packet->PacketType;
 	uint8_t datalength = packet->DataLength;
 	uint8_t CRC = packet->CRC8;
-	//uint8_t Data2[22];
-	//Data2 = packet->Data;
-	// to do: check crc8
 	if (CRC = Check_CRC8(*packet) && command == 0x0f){
 
 		/*
@@ -344,79 +343,63 @@ void AHRS::handle_packet(Packet *packet){
 		Mortor torque	2
 		dutycycle	1
 		*/
-		int *x = 0;
-		short *y = 0;
-		unsigned char *z = 0;
 		unsigned char a[4];
 		unsigned char b[2];
 		unsigned char c[1];
 
 		//Count
 		c[0] = packet->Data[0];
-		//*z = a[0];
-		//data->Controller_Status[channel][0] = (int*) z;
-		data->Controller_Status[channel][0] = (int*)bytesTounsignedchar(c,1);
+		data->Controller_Status[channel][0] = (int*)bytesTounsignedchar(c, 1);
 
 		//Position Target
 		a[3] = packet->Data[1];
 		a[2] = packet->Data[2];
 		a[1] = packet->Data[3];
 		a[0] = packet->Data[4];
-		//*x = *(int *)a;
-		data->Controller_Status[channel][1] = (int*) bytesToInt(a, 4);
+		data->Controller_Status[channel][1] = (int*)bytesToInt(a, 4);
 
 		//Motor position
 		a[3] = packet->Data[5];
 		a[2] = packet->Data[6];
 		a[1] = packet->Data[7];
 		a[0] = packet->Data[8];
-		//*x = *(int *)a;
-		data->Controller_Status[channel][2] = (int*) bytesToInt(a, 4);
+		data->Controller_Status[channel][2] = (int*)bytesToInt(a, 4);
 
 		//Velocity External
 		b[1] = packet->Data[9];
 		b[0] = packet->Data[10];
-		//*y = *(short *)b;
-		data->Controller_Status[channel][3] = (int*) bytesToShort(b,4);
+		data->Controller_Status[channel][3] = (int*)bytesToShort(b, 4);
 
 		//Velocity internal
 		b[1] = packet->Data[11];
 		b[0] = packet->Data[12];
-		//*y = *(short *)b;
 		data->Controller_Status[channel][4] = (int*)bytesToShort(b, 4);
 
 		//Motor velocity
 		b[1] = packet->Data[13];
 		b[0] = packet->Data[14];
-		//*y = *(short *)b;
 		data->Controller_Status[channel][5] = (int*)bytesToShort(b, 4);
 		
 		//torque external
 		b[1] = packet->Data[15];
 		b[0] = packet->Data[16];
-		//*y = *(short *)b;
 		data->Controller_Status[channel][6] = (int*)bytesToShort(b, 4);
 
 		//torque internal
 		b[1] = packet->Data[17];
 		b[0] = packet->Data[18];
-		//*y = *(short *)b;
 		data->Controller_Status[channel][7] = (int*)bytesToShort(b, 4);
 
 		//Mortor torque
 		b[1] = packet->Data[19];
 		b[0] = packet->Data[20];
-		//*y = *(short *)b;
 		data->Controller_Status[channel][8] = (int*)bytesToShort(b, 4);
 
 		//dutycycle
-		//a[0] = packet->Data[21];
-		//*z = *(unsigned short *)a[0];
-		//data->Controller_Status[channel][9] = (int*) bytesToShort;
 		c[0] = packet->Data[21];
 		data->Controller_Status[channel][9] = (int*)bytesTounsignedchar(c, 1);
 
-		view->refresh(data);
+		//view->refresh(data);
 	}
 	else{
 	
@@ -434,50 +417,143 @@ void AHRS::handle_packet(Packet *packet){
 	//view->refresh(data);
 };
 
+//flaot to bytes, bytes to float
+union UStuff
+{
+	float   f;
+	unsigned char   c[4];
+};
+
+//設定PID
+void AHRS::set_PID_param(){
+	Packet *packet = new Packet();
+	ifstream source;                    // build a read-Stream
+	source.open("PID.txt", ios_base::in);  // open data
+	if (!source)  {                     // if it does not work
+		cerr << "Can't open PID Data! Please check again\n";
+		system("pause");
+	}
+	else{
+		cerr << "Open PID Data successfully!\n";
+		//read in to array
+		int k = 0;
+		for (std::string line; std::getline(source, line);)   //read stream line by line
+		{
+			std::istringstream in(line);      //make a stream for the line itself
+			//float a[12];
+			//float a_temp;
+			//read and save PID
+			for (int i = 0; i < 7; i++){
+			in >>data->PID_Status[k][0]
+				>> data->PID_Status[k][1] 
+				>> data->PID_Status[k][2] 
+				>> data->PID_Status[k][3] 
+				>> data->PID_Status[k][4] 
+				>> data->PID_Status[k][5] 
+				>> data->PID_Status[k][6] 
+				>> data->PID_Status[k][7] 
+				>> data->PID_Status[k][8]
+				>> data->PID_Status[k][9]
+				>> data->PID_Status[k][10]
+				>> data->PID_Status[k][11];
+			}
+			//cout << "PID of Motor"<<k+1<< ": ";
+			for (int i = 0; i < 12; i++){
+				//cout << data->PID_Status[k][i]<<" ";
+				//printf("%f \n", data->PID_Status[k][i]);
+			}
+			cout << "\n";
+			k++;
+		}
+
+		//Set PID param
+		UStuff PID;
+		for (int i = 0; i < 7; i++){
+			//cout << "Start to set PID of Motor" << i + 1 << endl;
+			//kick-off
+			packet->Ch_Status = i;
+			packet->PacketType = 0x20;
+			packet->DataLength = 49;
+			for (int j = 0; j < 12; j++){
+				//前後順序對不對 不確定
+				PID.f = (float) data->PID_Status[i][j];
+				packet->Data[4 * i] = PID.c[3];
+				packet->Data[4 * i + 1] = PID.c[2];
+				packet->Data[4 * i + 2] = PID.c[1];
+				packet->Data[4 * i + 3] = PID.c[0];
+			};
+			packet->CRC8 = Check_CRC8(*packet);
+			serial->Write_into_SerialPort(*packet);
+			Sleep(50);
+		}
+	}
+	source.close();
+	//system("pause");
+};
 //啟動馬達
 void AHRS::kick_off(){
 	Packet *packet = new Packet();
 	for (int i = 0; i < 7; i++){
-		cout << "Start to kick off Motor" << i + 1 << endl;
+		cout << "Start to reset, set period, flush buffer to Motor" << i + 1 << endl;
 		//reset
 		packet->Ch_Status = i;
 		packet->PacketType = 0x10;
 		packet->DataLength = 1;
 		packet->CRC8 = Check_CRC8(*packet);
 		serial->Write_into_SerialPort(*packet);
-		Sleep(100);
-		//read_packet();
+		Sleep(50);
 
 		//set period
 		packet->Ch_Status = i;
 		packet->PacketType = 0x43;
 		packet->DataLength = 2;
-		packet->Data[0] = 15;
+		packet->Data[0] = 50;
 		packet->CRC8 = Check_CRC8(*packet);
 		serial->Write_into_SerialPort(*packet);
-		Sleep(100);
-		//read_packet();
-		//serial->flush();
+		Sleep(50);
+		serial->flush();
 
 	}
-
+	system("cls");
+	set_PID_param();
+	system("cls");
 	for (int i = 0; i < 7; i++){
+		cout << "Start to kick-off Motor" << i + 1 << endl;
 		//kick-off
 		packet->Ch_Status = i;
 		packet->PacketType = 0x11;
 		packet->DataLength = 1;
 		packet->CRC8 = Check_CRC8(*packet);
 		serial->Write_into_SerialPort(*packet);
-		Sleep(100);
-		serial->flush();
+		Sleep(50);
+		//serial->flush();
 	}
 	cout << "Start to Flush Data in Buffer" << endl;
-	//serial->flush();
+	serial->flush();
 	cout << "Start to Read data" << endl;
 }
+union byteint
+{
+	byte b[4];
+	int i;
+};
+void AHRS::tracking_motor(int tracked, int tracker){
+	int encoder_now = (int) data->Controller_Status[tracked][2];
+	Packet *packet = new Packet();
+	packet->Ch_Status = tracker-1;
+	packet->PacketType = 0x40;
+	packet->DataLength = 5;
 
-
-
+	byteint encoder; 
+	encoder.i = encoder_now;
+	packet->Data[0] = encoder.b[3];
+	packet->Data[1] = encoder.b[2];
+	packet->Data[2] = encoder.b[1];
+	packet->Data[3] = encoder.b[0];
+	packet->CRC8 = Check_CRC8(*packet);
+	serial->Write_into_SerialPort(*packet);
+};
+/*
 int AHRS::getTypeIndex(byte type, int Command[])
 {
 	int type_index = -1;
@@ -495,7 +571,7 @@ int AHRS::getTypeIndex(byte type, int Command[])
 
 	return type_index;
 }
-
+*/
 /*
 private bool updateAHRS(int index)
 {

@@ -1,17 +1,27 @@
-﻿已經開始建置於 2015/8/8 下午 09:51:34。
-     1>節點 2 (Build 目標) 上的專案 "C:\Users\massage\Desktop\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj"。
+﻿已經開始建置於 2015/8/12 上午 12:53:37。
+     1>節點 2 (Build 目標) 上的專案 "C:\Users\admin\Desktop\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj"。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Motor_Control_CPP.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Visual.cpp
+         E:\MicrosoftVisual2013\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\Motor_Control_CPP.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         E:\MicrosoftVisual2013\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Motor_Control_CPP.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt AHRS.cpp Motor_Control_CPP.cpp Serial_Port.cpp Visual.cpp
          Visual.cpp
+         Serial_Port.cpp
+     1>c:\users\admin\desktop\motor_control_cpp\motor_control_cpp\serial_port.cpp(81): warning C4800: 'BOOL' : 強制將 bool 的值定為 'true' 或 'false' (效能警告)
+         Motor_Control_CPP.cpp
+         AHRS.cpp
+     1>c:\users\admin\desktop\motor_control_cpp\motor_control_cpp\ahrs.cpp(124): warning C4101: 'Command' : 未參考的區域變數
+     1>c:\users\admin\desktop\motor_control_cpp\motor_control_cpp\ahrs.cpp(207): warning C4800: 'BOOL' : 強制將 bool 的值定為 'true' 或 'false' (效能警告)
+     1>c:\users\admin\desktop\motor_control_cpp\motor_control_cpp\ahrs.cpp(214): warning C4018: '<' : signed/unsigned 不相符
+         正在產生程式碼...
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\massage\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\massage\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\massage\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.lib" /MACHINE:X86 Debug\AHRS.obj
+         E:\MicrosoftVisual2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\admin\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\admin\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\admin\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.lib" /MACHINE:X86 Debug\AHRS.obj
          Debug\Motor_Control_CPP.obj
          Debug\Serial_Port.obj
          Debug\stdafx.obj
          Debug\Visual.obj
-         Motor_Control_CPP.vcxproj -> C:\Users\massage\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.exe
-     1>專案 "C:\Users\massage\Desktop\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj" (Build 目標) 建置完成。
+         Motor_Control_CPP.vcxproj -> C:\Users\admin\Desktop\Motor_Control_CPP\Debug\Motor_Control_CPP.exe
+     1>專案 "C:\Users\admin\Desktop\Motor_Control_CPP\Motor_Control_CPP\Motor_Control_CPP.vcxproj" (Build 目標) 建置完成。
 
 建置成功。
 
-經過時間 00:00:01.02
+經過時間 00:00:09.87
